@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Share Location</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <h1>Share Your Location</h1>
+  <button onclick="shareLocation()">Share My Location</button>
+  <p id="status"></p>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBa0AVYjgYb-UBAYlbyEphqqrMSBq6Sb9c",
+      authDomain: "locationtracker-3df88.firebaseapp.com",
+      projectId: "locationtracker-3df88",
+      storageBucket: "locationtracker-3df88.firebasestorage.app",
+      messagingSenderId: "581996704565",
+      appId: "1:581996704565:web:821e744807609771ec927c",
+      measurementId: "G-Q6H68F1V4W"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function shareLocation() {
+      const status = document.getElementById('status');
+      if (!navigator.geolocation) {
+        status.innerText = "Geolocation is not supported by your browser.";
+        return;
+      }
+
+      status.innerText = "Getting location...";
+      navigator.geolocation.getCurrentPosition((position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        db.collection("locations").add({
+          latitude: lat,
+          longitude: lon,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          status.innerText = "Location shared successfully!";
+        }).catch((error) => {
+          status.innerText = "Error sharing location: " + error.message;
+        });
+
+      }, (error) => {
+        status.innerText = "Error getting location: " + error.message;
+      });
+    }
+  </script>
+</body>
+</html>
