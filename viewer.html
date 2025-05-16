@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>View Shared Locations</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 500px; width: 100%; }
+  </style>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <h1>Live Locations</h1>
+  <div id="map"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBa0AVYjgYb-UBAYlbyEphqqrMSBq6Sb9c",
+      authDomain: "locationtracker-3df88.firebaseapp.com",
+      projectId: "locationtracker-3df88",
+      storageBucket: "locationtracker-3df88.firebasestorage.app",
+      messagingSenderId: "581996704565",
+      appId: "1:581996704565:web:821e744807609771ec927c",
+      measurementId: "G-Q6H68F1V4W"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const map = L.map('map').setView([0, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markers = {};
+
+    db.collection("locations").orderBy("timestamp").onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added" || change.type === "modified") {
+          const data = change.doc.data();
+          const id = change.doc.id;
+          const lat = data.latitude;
+          const lon = data.longitude;
+
+          if (markers[id]) {
+            markers[id].setLatLng([lat, lon]);
+          } else {
+            markers[id] = L.marker([lat, lon]).addTo(map);
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
